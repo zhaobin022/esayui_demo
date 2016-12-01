@@ -8,6 +8,7 @@ import os
 import json
 from Model.User import UserService
 import BootMapper
+import logging
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
@@ -32,10 +33,25 @@ class GetUserHandler(tornado.web.RequestHandler):
         self.write(json.dumps(user_list))
 
     def post(self):
-        user_service = UserService()
-        user_list = user_service.get_user_list()
+        page = self.get_argument('page')
+        rows = self.get_argument('rows')
+        if page:
 
-        self.write(json.dumps(user_list))
+            user_service = UserService()
+            user_list = user_service.get_user_list_by_page(page,rows)
+            count = user_service.get_user_count()
+            ret = {
+                'total':count['count'],
+                 'rows':user_list
+            }
+            self.write(json.dumps(ret))
+
+        else:
+            user_service = UserService()
+            user_list = user_service.get_user_list()
+
+            self.write(json.dumps(user_list))
+
 
 class GetSingleUserHandler(tornado.web.RequestHandler):
     def get(self):
@@ -143,6 +159,8 @@ application = tornado.web.Application([
     (r"/get_single_user", GetSingleUserHandler),
     (r"/showform", ShowFormHandler),
 ], **settings)
+BASE_DIR = os.path.dirname(__file__)
+logging.basicConfig(filename=os.path.join(BASE_DIR,'logs/sql.log'), level=logging.DEBUG)
 
 
 if __name__ == "__main__":

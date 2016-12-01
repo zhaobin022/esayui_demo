@@ -7,113 +7,44 @@
 	<link rel="stylesheet" type="text/css" href="{{ static_url('themes/icon.css') }}">
 	<script type="text/javascript" src="{{ static_url('jquery.min.js') }}"></script>
 	<script type="text/javascript" src="{{ static_url('jquery.easyui.min.js') }}"></script>
+	<script type="text/javascript" src="{{ static_url('jquery.edatagrid.js') }}"></script>
 
 	<script type="text/javascript" src="{{ static_url('datagrid-detailview.js') }}"></script>
 	<script type="text/javascript" src="{{ static_url('locale/easyui-lang-zh_CN.js') }}"></script>
 
 	<script type="text/javascript">
 		$(function(){
+			$('#dg').edatagrid({
+				url: 'get_users',
+				saveUrl: 'save_user',
+				updateUrl: 'update_user',
+				destroyUrl: 'delete_user'
+			});
 		});
 	</script>
 
 </head>
 <body>
-   <table id="dg" title="My Users" class="easyui-datagrid"
-		url="get_users"
-		toolbar="#toolbar"
-		fitColumns="true" singleSelect="true">
-	<thead>
-		<tr>
-			<th field="id" width="50">Id</th>
-			<th field="firstname" width="50">First Name</th>
-			<th field="lastname" width="50">Last Name</th>
-			<th field="phone" width="50">Phone</th>
-			<th field="email" width="50">Email</th>
-		</tr>
-	</thead>
-    </table>
-    <div id="toolbar">
-        <a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="newItem()">New</a>
-        <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="destroyItem()">Destroy</a>
-    </div>
+	<table id="dg" title="My Users"
+			toolbar="#toolbar" pagination="true" idField="id"
+			rownumbers="true" fitColumns="true" singleSelect="true">
+		<thead>
+			<tr>
+				<th field="firstname" width="50" editor="{type:'validatebox',options:{required:true}}">First Name</th>
+				<th field="lastname" width="50" editor="{type:'validatebox',options:{required:true}}">Last Name</th>
+				<th field="phone" width="50" editor="text">Phone</th>
+				<th field="email" width="50" editor="{type:'validatebox',options:{validType:'email'}}">Email</th>
+			</tr>
+		</thead>
+	</table>
+	<div id="toolbar">
+		<a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="javascript:$('#dg').edatagrid('addRow')">New</a>
+		<a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="javascript:$('#dg').edatagrid('destroyRow')">Destroy</a>
+		<a href="#" class="easyui-linkbutton" iconCls="icon-save" plain="true" onclick="javascript:$('#dg').edatagrid('saveRow')">Save</a>
+		<a href="#" class="easyui-linkbutton" iconCls="icon-undo" plain="true" onclick="javascript:$('#dg').edatagrid('cancelRow')">Cancel</a>
+	</div>
+
     <script>
-        $('#dg').datagrid({
-            view: detailview,
-            detailFormatter:function(index,row){
-                return '<div class="ddv"></div>';
-            },
-            onExpandRow: function(index,row){
-                var ddv = $(this).datagrid('getRowDetail',index).find('div.ddv');
-                console.log(row);
-                ddv.panel({
-                    border:false,
-                    cache:true,
-                    href:'/showform?index='+index,
-                    onLoad:function(){
-                        $('#dg').datagrid('fixDetailRowHeight',index);
-                        $('#dg').datagrid('selectRow',index);
-                        $('#dg').datagrid('getRowDetail',index).find('form').form('load',row);
-                    }
-                });
-                $('#dg').datagrid('fixDetailRowHeight',index);
-            }
-        });
-
-
-        function saveItem(index){
-            console.log('saveItem');
-            var row = $('#dg').datagrid('getRows')[index];
-            console.log(row);
-            var url = row.isNewRecord ? 'save_user' : 'update_user?id='+row.id;
-            $('#dg').datagrid('getRowDetail',index).find('form').form('submit',{
-                url: url,
-                onSubmit: function(){
-                    return $(this).form('validate');
-                },
-                success: function(data){
-                    data = eval('('+data+')');
-                    data.isNewRecord = false;
-                    $('#dg').datagrid('collapseRow',index);
-                    $('#dg').datagrid('updateRow',{
-                        index: index,
-                        row: data.row
-                    });
-                     $('#dg').datagrid('reload');
-                }
-            });
-        };
-
-
-        function cancelItem(index){
-            var row = $('#dg').datagrid('getRows')[index];
-            if (row.isNewRecord){
-                $('#dg').datagrid('deleteRow',index);
-            } else {
-                $('#dg').datagrid('collapseRow',index);
-            }
-        };
-
-		function newItem(){
-			$('#dg').datagrid('appendRow',{isNewRecord:true});
-			var index = $('#dg').datagrid('getRows').length - 1;
-			$('#dg').datagrid('expandRow', index);
-			$('#dg').datagrid('selectRow', index);
-		};
-
-
-		function destroyItem(){
-			var row = $('#dg').datagrid('getSelected');
-			if (row){
-				$.messager.confirm('Confirm','Are you sure you want to remove this user?',function(r){
-					if (r){
-						var index = $('#dg').datagrid('getRowIndex',row);
-						$.post('delete_user',{id:row.id},function(){
-							$('#dg').datagrid('deleteRow',index);
-						});
-					}
-				});
-			}
-		};
 
     </script>
 </body>

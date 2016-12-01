@@ -19,6 +19,11 @@ class IUserRepository:
     def get_user_list(self):
         raise Exception()
 
+    def get_user_list_by_page(self,page,page_size):
+        raise Exception()
+
+    def get_user_count(self):
+        raise Exception()
 
     def delete_user_by_id(self,user_id):
         raise Exception()
@@ -55,9 +60,17 @@ class UserService:
         user_list = self.userRepository.get_user_list()
         return user_list
 
+    def get_user_list_by_page(self,page,page_size):
+        user_list = self.userRepository.get_user_list_by_page(page,page_size)
+        return user_list
 
     def delete_user_by_id(self,user_id):
         m = self.userRepository.delete_user_by_id(user_id)
 
     def update_user_by_id(self,id,firstname, lastname,phone,email):
         self.userRepository.update_user_by_id(id,firstname, lastname,phone,email)
+
+
+    def get_user_count(self):
+        count = self.userRepository.get_user_count()
+        return count

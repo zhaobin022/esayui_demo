@@ -4,6 +4,7 @@ import pymysql
 import Config
 
 
+
 class DbConnection:
 
     def __init__(self):

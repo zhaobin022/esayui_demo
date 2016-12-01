@@ -3,6 +3,10 @@
 
 from Model.User import IUserRepository
 from Repository.DbConnection import DbConnection
+import logging
+import os
+
+
 
 class UserRepository(IUserRepository):
 
@@ -52,3 +56,25 @@ class UserRepository(IUserRepository):
 
         return db_result
 
+    def get_user_list_by_page(self,page,page_size):
+
+
+        start = (int(page)-1)*int(page_size)
+
+        cursor = self.db_conn.connect()
+        sql = """select * from userinfo limit %s,%s"""
+        print sql
+        print start,page_size
+        cursor.execute(sql,(int(start),int(page_size)))
+        db_result = cursor.fetchall()
+        self.db_conn.close()
+        return db_result
+
+    def get_user_count(self):
+        cursor = self.db_conn.connect()
+        sql = """select count(*) as count from userinfo"""
+        cursor.execute(sql)
+        db_result = cursor.fetchone()
+        self.db_conn.close()
+
+        return db_result
