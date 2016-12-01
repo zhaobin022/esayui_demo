@@ -23,6 +23,7 @@ class MainHandler(tornado.web.RequestHandler):
         self.write(json.dumps(user_list))
 
 
+
 class GetUserHandler(tornado.web.RequestHandler):
     def get(self):
         user_service = UserService()
@@ -35,6 +36,15 @@ class GetUserHandler(tornado.web.RequestHandler):
         user_list = user_service.get_user_list()
 
         self.write(json.dumps(user_list))
+
+class GetSingleUserHandler(tornado.web.RequestHandler):
+    def get(self):
+        id = self.get_argument('id')
+        user_service = UserService()
+        user_obj = user_service.get_user_by_id(id)
+        print user_obj,111111111111111111
+        self.write(json.dumps(user_obj))
+
 
 
 
@@ -94,9 +104,23 @@ class UpdateUserHandler(tornado.web.RequestHandler):
         user_service.update_user_by_id(id,firstname,lastname,phone,email)
 
         ret = {
-            'errorMsg':False
+            'errorMsg':False,
+            'row': {
+                'id':id,
+                'firstname':firstname,
+                'lastname':lastname,
+                'phone':phone,
+                'email':email
+            }
         }
         self.write(json.dumps(ret))
+
+
+
+class ShowFormHandler(tornado.web.RequestHandler):
+    def get(self):
+        index = self.get_argument('index')
+        self.render('show_form.html',index=index)
 
 
 
@@ -116,11 +140,11 @@ application = tornado.web.Application([
     (r"/save_user", SaveUserHandler),
     (r"/delete_user", DeleteUserHandler),
     (r"/update_user", UpdateUserHandler),
-
-
+    (r"/get_single_user", GetSingleUserHandler),
+    (r"/showform", ShowFormHandler),
 ], **settings)
 
 
 if __name__ == "__main__":
-    application.listen(8000)
+    application.listen(80)
     tornado.ioloop.IOLoop.instance().start()

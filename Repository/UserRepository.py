@@ -51,3 +51,4 @@ class UserRepository(IUserRepository):
         self.db_conn.close()
 
         return db_result
+
